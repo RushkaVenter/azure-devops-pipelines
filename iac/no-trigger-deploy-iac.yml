@@ -2,7 +2,7 @@
 # This can be for security reasons, especially if the company has a lot of personal information that the system works with
 # Agent pools are configured under DevOps project settings
 
-pool: Azure Pipelines
+# pool: Azure Pipelines
 
 trigger: none
 
