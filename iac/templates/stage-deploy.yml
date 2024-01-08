@@ -15,9 +15,9 @@ parameters:
     default: bicep
     values:
       - bicep
-      - arm
       - azcli
       - azpowershell
+      - arm
   
 jobs:
   - deployment: deploy_iac_job_bicep
@@ -47,3 +47,37 @@ jobs:
                 overrideParameters: '-storageAccountType Standard_LRS'
                 deploymentMode: 'Incremental'
                 deploymentName: 'DeployPipelineTemplate'
+  - deployment: deploy_iac_job_azcli
+    displayName: Deploying the infrastructure via Azure CLI
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azcli')
+    variables:
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create VNET
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  az network vnet create -n 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --subnet-name 'devops-examples-sbn-${{ parameters.environment }}'
+ - deployment: deploy_iac_job_azpowershell
+    displayName: Deploying the infrastructure via Azure Powershell
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azpowershell')
+    variables:
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create VNET
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  New-AzVirtualNetwork -Name 'devops-examples-vn-${{ parameters.environment }}' -ResourceGroupName '${{ parameters.resourceGroupName }}' -Subnet 'devops-examples-sbn-${{ parameters.environment }}'
