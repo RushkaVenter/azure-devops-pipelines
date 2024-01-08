@@ -1,7 +1,8 @@
 # NOTE: that some companies may require you to specify an agent pool to run under
 # This can be for security reasons, especially if the company has a lot of personal information that the system works with
+# Agent pools are configured under DevOps project settings
 
-pool: windows-latest
+pool: Default
 
 trigger: none
 
