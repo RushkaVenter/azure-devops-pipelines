@@ -1,0 +1,49 @@
+parameters:
+  - name: environment
+    type: string
+  - name: project
+    type: string
+  - name: azureServiceConnection
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: location
+    type: string
+  - name: deployType
+    displayName: Deploy Type
+    type: string
+    default: bicep
+    values:
+      - bicep
+      - arm
+      - azcli
+      - azpowershell
+  
+jobs:
+  - deployment: deploy_iac_job_bicep
+    displayName: Deploying the infrastructure via Bicep
+    # Setting up an Environment on DevOps - https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops
+    # This can be used to limit deployments to certain environments to certain groups/individuals
+    # During the release, an approval step must be completed before the job runs
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'bicep')
+    variables:
+      bicepTemplateFile: 'iac/templates/bicep/main.bicep'
+      bicepParamFile: 'iac/templates/bicep/${{ parameters.environment }}.bicepparam'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '${{ parameters.resourceGroupName }}'
+                location: '${{ parameters.location }}'
+                templateLocation: 'Linked artifact'
+                csmFile: '${{ variables.bicepTemplateFile }}'
+                csmParametersFile: '${{ variables.bicepParamFile }}'
+                overrideParameters: '-storageAccountType Standard_LRS'
+                deploymentMode: 'Incremental'
+                deploymentName: 'DeployPipelineTemplate'

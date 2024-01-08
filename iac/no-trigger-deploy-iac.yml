@@ -1,0 +1,41 @@
+/* NOTE: that some companies may require you to specify an agent pool to run under */
+/* This can be for security reasons, especially if the company has a lot of personal information that the system works with */
+
+pool: windows-latest
+
+trigger: none
+
+parameters:
+  - name: env
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - qa
+      - prod
+  - name: deployType
+    displayName: Deploy Type
+    type: string
+    default: bicep
+    values:
+      - bicep
+      - arm
+      - azcli
+      - azpowershell
+
+stages:
+  - stage: dev
+    displayName: "IaC Deploy"
+    variables:
+      - group: iac-${{ parameters.env }}
+    condition: eq('${{parameters.env}}', 'dev')
+    jobs:
+      - template: /iac/templates/stage-deploy.yml
+        parameters:
+          environment: '${{parameters.env}}'
+          project: 'devops-examples'
+          azureServiceConnection: 'devops-examples-azure-service-connection-${{parameters.env}}'
+          resourceGroupName: 'devops-examples-rg-${{parameters.env}}'
+          location: 'southafricanorth'
+          deployType: '${{parameters.deployType}}'
