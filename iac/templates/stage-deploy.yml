@@ -29,7 +29,6 @@ jobs:
     condition: eq('${{parameters.deployType}}', 'bicep')
     variables:
       bicepTemplateFile: '$(Build.SourcesDirectory)/iac/templates/bicep/main.bicep'
-      bicepParamFile: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}.bicepparam'
       bicepParamFileJson: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}-param.json'
     strategy:
       runOnce:
@@ -37,23 +36,6 @@ jobs:
           steps:
             - checkout: self
             - task: CmdLine@2
-              inputs:
-                script: |
-                  echo "Structure of work folder of this pipeline:"
-                  tree $(Agent.WorkFolder)/1
-
-                  echo "Build.ArtifactStagingDirectory:" 
-                  echo "$(Build.ArtifactStagingDirectory)"
-
-                  echo "Build.BinariesDirectory:" 
-                  echo "$(Build.BinariesDirectory)"
-
-                  echo "Build.SourcesDirectory:"
-                  echo "$(Build.SourcesDirectory)"
-
-                  echo "${{variables.bicepTemplateFile}}"
-                  echo "${{variables.bicepParamFile}}"
-                  echo "${{variables.bicepParamFileJson}}"
             - task: AzureResourceManagerTemplateDeployment@3
               inputs:
                 deploymentScope: 'Resource Group'
