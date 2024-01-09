@@ -30,6 +30,7 @@ jobs:
     variables:
       bicepTemplateFile: '$(Build.SourcesDirectory)/iac/templates/bicep/main.bicep'
       bicepParamFile: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}.bicepparam'
+      bicepParamFileJson: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}-param.json'
     strategy:
       runOnce:
         deploy:
@@ -52,6 +53,7 @@ jobs:
 
                   echo "${{variables.bicepTemplateFile}}"
                   echo "${{variables.bicepParamFile}}"
+                  echo "${{variables.bicepParamFileJson}}"
             - task: AzureResourceManagerTemplateDeployment@3
               inputs:
                 deploymentScope: 'Resource Group'
@@ -61,7 +63,7 @@ jobs:
                 location: '${{ parameters.location }}'
                 templateLocation: 'Linked artifact'
                 csmFile: '${{ variables.bicepTemplateFile }}'
-                csmParametersFile: '${{ variables.bicepParamFile }}'
+                csmParametersFile: '${{ variables.bicepParamFileJson }}'
                 deploymentMode: 'Incremental'
                 deploymentName: 'DeployPipelineTemplate'
   - deployment: deploy_iac_job_azcli
