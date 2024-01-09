@@ -34,19 +34,32 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - task: AzureResourceManagerTemplateDeployment@3
+            - task: CmdLine@2
               inputs:
-                deploymentScope: 'Resource Group'
-                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
-                action: 'Create Or Update Resource Group'
-                resourceGroupName: '${{ parameters.resourceGroupName }}'
-                location: '${{ parameters.location }}'
-                templateLocation: 'Linked artifact'
-                csmFile: '${{ variables.bicepTemplateFile }}'
-                csmParametersFile: '${{ variables.bicepParamFile }}'
-                overrideParameters: '-storageAccountType Standard_LRS'
-                deploymentMode: 'Incremental'
-                deploymentName: 'DeployPipelineTemplate'
+                script: |
+                  echo "Structure of work folder of this pipeline:"
+                  tree $(Agent.WorkFolder)/1
+
+                  echo "Build.ArtifactStagingDirectory:" 
+                  echo "$(Build.ArtifactStagingDirectory)"
+
+                  echo "Build.BinariesDirectory:" 
+                  echo "$(Build.BinariesDirectory)"
+
+                  echo "Build.SourcesDirectory:"
+                  echo "$(Build.SourcesDirectory)"
+            # - task: AzureResourceManagerTemplateDeployment@3
+            #   inputs:
+            #     deploymentScope: 'Resource Group'
+            #     azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+            #     action: 'Create Or Update Resource Group'
+            #     resourceGroupName: '${{ parameters.resourceGroupName }}'
+            #     location: '${{ parameters.location }}'
+            #     templateLocation: 'Linked artifact'
+            #     csmFile: '${{ variables.bicepTemplateFile }}'
+            #     csmParametersFile: '${{ variables.bicepParamFile }}'
+            #     deploymentMode: 'Incremental'
+            #     deploymentName: 'DeployPipelineTemplate'
   - deployment: deploy_iac_job_azcli
     displayName: Deploying the infrastructure via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
