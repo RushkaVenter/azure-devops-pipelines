@@ -28,8 +28,8 @@ jobs:
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'bicep')
     variables:
-      bicepTemplateFile: '$(Build.SourcesDirectory)\\iac\\templates\\bicep\\main.bicep'
-      bicepParamFile: '$(Build.SourcesDirectory)\\iac\\templates\\bicep\\${{ parameters.environment }}.bicepparam'
+      bicepTemplateFile: '$(Build.SourcesDirectory)/iac/templates/bicep/main.bicep'
+      bicepParamFile: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}.bicepparam'
     strategy:
       runOnce:
         deploy:
