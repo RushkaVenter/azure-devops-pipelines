@@ -1,0 +1,82 @@
+parameters:
+  - name: environment
+    type: string
+  - name: project
+    type: string
+  - name: azureServiceConnection
+    type: string
+  - name: resourceGroupName
+    type: string
+  - name: location
+    type: string
+  - name: deployType
+    displayName: Deploy Type
+    type: string
+    default: bicep
+    values:
+      - bicep
+      - azcli
+      - azpowershell
+      - arm
+  
+jobs:
+  - deployment: deploy_iac_job_bicep
+    displayName: Deploying the infrastructure via Bicep
+    # Setting up an Environment on DevOps - https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops
+    # This can be used to limit deployments to certain environments to certain groups/individuals
+    # During the release, an approval step must be completed before the job runs
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'bicep')
+    variables:
+      bicepTemplateFile: '$(Build.SourcesDirectory)/iac/templates/bicep/main.bicep'
+      bicepParamFileJson: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}-param.json'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: CmdLine@2
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '${{ parameters.resourceGroupName }}'
+                location: '${{ parameters.location }}'
+                templateLocation: 'Linked artifact'
+                csmFile: '${{ variables.bicepTemplateFile }}'
+                csmParametersFile: '${{ variables.bicepParamFileJson }}'
+                deploymentMode: 'Incremental'
+                deploymentName: 'DeployPipelineTemplate'
+  - deployment: deploy_iac_job_azcli
+    displayName: Deploying the infrastructure via Azure CLI
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azcli')
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create VNET
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  az network vnet create -n 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --subnet-name 'devops-examples-sbn-${{ parameters.environment }}'
+  - deployment: deploy_iac_job_azpowershell
+    displayName: Deploying the infrastructure via Azure Powershell
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azpowershell')
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create VNET
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  New-AzVirtualNetwork -Name 'devops-examples-vn-${{ parameters.environment }}' -ResourceGroupName '${{ parameters.resourceGroupName }}' -Subnet 'devops-examples-sbn-${{ parameters.environment }}'
