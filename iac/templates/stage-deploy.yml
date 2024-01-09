@@ -28,8 +28,8 @@ jobs:
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'bicep')
     variables:
-      bicepTemplateFile: '$(System.DefaultWorkingDirectory)\\iac\\templates\\bicep\\main.bicep'
-      bicepParamFile: '$(System.DefaultWorkingDirectory)\\iac\\templates\\bicep\\${{ parameters.environment }}.bicepparam'
+      bicepTemplateFile: '$(Build.SourcesDirectory)\\iac\\templates\\bicep\\main.bicep'
+      bicepParamFile: '$(Build.SourcesDirectory)\\iac\\templates\\bicep\\${{ parameters.environment }}.bicepparam'
     strategy:
       runOnce:
         deploy:
@@ -49,18 +49,21 @@ jobs:
 
                   echo "Build.SourcesDirectory:"
                   echo "$(Build.SourcesDirectory)"
-            # - task: AzureResourceManagerTemplateDeployment@3
-            #   inputs:
-            #     deploymentScope: 'Resource Group'
-            #     azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
-            #     action: 'Create Or Update Resource Group'
-            #     resourceGroupName: '${{ parameters.resourceGroupName }}'
-            #     location: '${{ parameters.location }}'
-            #     templateLocation: 'Linked artifact'
-            #     csmFile: '${{ variables.bicepTemplateFile }}'
-            #     csmParametersFile: '${{ variables.bicepParamFile }}'
-            #     deploymentMode: 'Incremental'
-            #     deploymentName: 'DeployPipelineTemplate'
+
+                  echo "${{variables.bicepTemplateFile}}"
+                  echo "${{variables.bicepParamFile}}"
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '${{ parameters.resourceGroupName }}'
+                location: '${{ parameters.location }}'
+                templateLocation: 'Linked artifact'
+                csmFile: '${{ variables.bicepTemplateFile }}'
+                csmParametersFile: '${{ variables.bicepParamFile }}'
+                deploymentMode: 'Incremental'
+                deploymentName: 'DeployPipelineTemplate'
   - deployment: deploy_iac_job_azcli
     displayName: Deploying the infrastructure via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
