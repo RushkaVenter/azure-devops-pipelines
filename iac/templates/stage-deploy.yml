@@ -75,6 +75,7 @@ jobs:
             - task: PowerShell@2
               displayName: Create VNET
               inputs:
+                pwsh: true
                 targetType: inline
                 script: |
                   New-AzVirtualNetwork -Name 'devops-examples-vn-${{ parameters.environment }}' -ResourceGroupName '${{ parameters.resourceGroupName }}' -Subnet 'devops-examples-sbn-${{ parameters.environment }}'
