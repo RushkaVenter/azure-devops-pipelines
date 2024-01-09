@@ -51,7 +51,6 @@ jobs:
     displayName: Deploying the infrastructure via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'azcli')
-    variables:
     strategy:
       runOnce:
         deploy:
@@ -68,7 +67,6 @@ jobs:
     displayName: Deploying the infrastructure via Azure Powershell
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'azpowershell')
-    variables:
     strategy:
       runOnce:
         deploy:
