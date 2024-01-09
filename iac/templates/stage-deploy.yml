@@ -72,7 +72,7 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - task: AzureCLI@2
+            - task: PowerShell@2
               displayName: Create VNET
               inputs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
