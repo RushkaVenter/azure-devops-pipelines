@@ -38,4 +38,46 @@ Select the repository that you are using for your project, in our examples we wi
 Select your repository, we choose azure-devops-pipelines.
 Then select Existing Azure Pipelines YAML file.
 ![Existing pipeline](/docs/img/pipeline-create-03.png)
+Then select your branch and template file.
+![YAML file selection](/docs/img/pipeline-create-04.png)
+You can then review and save your pipeline.
+![YAML file selection](/docs/img/pipeline-create-05.png)
+You can also rename your pipeline after that.
+![YAML file selection](/docs/img/pipeline-create-06.png)
 
+### Using Bicep
+Bicep is a declaritive language that is used to deploy resources to Azure. [What is Bicep?](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep)
+
+We have included a sample [bicep file](/iac/templates/bicep/main.bicep) that deploys a virtual network to azure.
+In the [stage-deploy](/iac/templates/stage-deploy.yml) template is the detailed step to deploy using bicep.
+```
+- deployment: deploy_iac_job_bicep
+    displayName: Deploying the infrastructure via Bicep
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'bicep')
+    variables:
+      bicepTemplateFile: '$(Build.SourcesDirectory)/iac/templates/bicep/main.bicep'
+      bicepParamFileJson: '$(Build.SourcesDirectory)/iac/templates/bicep/${{ parameters.environment }}-param.json'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: CmdLine@2
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '${{ parameters.resourceGroupName }}'
+                location: '${{ parameters.location }}'
+                templateLocation: 'Linked artifact'
+                csmFile: '${{ variables.bicepTemplateFile }}'
+                csmParametersFile: '${{ variables.bicepParamFileJson }}'
+                deploymentMode: 'Incremental'
+                deploymentName: 'DeployPipelineTemplate'
+```
+Notes on the above:
+* environment - this will allow us to put approval gates for specific environments in place.
+* AzureResourceManagerTemplateDeployment@3 - as of 2024-01-09, this has an issue deploying .bicepparam files, hence we are using .json
+* azureResourceManagerConnection - this requires a service connection set up with rights to deploy to your selected RG
