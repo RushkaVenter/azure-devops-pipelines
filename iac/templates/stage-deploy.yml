@@ -75,8 +75,6 @@ jobs:
             - task: PowerShell@2
               displayName: Create VNET
               inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: pscore
-                scriptLocation: inlineScript
-                inlineScript: |
+                targetType: inline
+                script: |
                   New-AzVirtualNetwork -Name 'devops-examples-vn-${{ parameters.environment }}' -ResourceGroupName '${{ parameters.resourceGroupName }}' -Subnet 'devops-examples-sbn-${{ parameters.environment }}'
