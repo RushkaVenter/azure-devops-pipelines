@@ -20,10 +20,9 @@ parameters:
     type: string
     default: bicep
     values:
-      - bicep
-      - arm
-      - azcli
-      - azpowershell
+      - bice
+      - azclip
+      - arm      
 
 stages:
   - stage: dev
