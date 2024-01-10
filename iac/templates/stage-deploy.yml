@@ -74,13 +74,13 @@ jobs:
         deploy:
           steps:
             - task: AzureCLI@2
-              displayName: Create VNET
+              displayName: Create Subnet
               inputs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: pscore
                 scriptLocation: inlineScript
                 inlineScript: |
-                  az network vnet subnet create --vnet-name 'devops-examples-subn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}'
+                  az network vnet subnet create --vnet-name 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}'
   
   - deployment: deploy_iac_job_azpowershell
     displayName: Deploying the infrastructure via Azure Powershell
