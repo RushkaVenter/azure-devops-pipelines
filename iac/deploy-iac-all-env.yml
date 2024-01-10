@@ -8,9 +8,9 @@ parameters:
     type: string
     default: bicep
     values:
-      - bice
-      - azclip
-      - arm      
+      - bicep
+      - azcli
+      - arm
 
 stages:
   - stage: dev
