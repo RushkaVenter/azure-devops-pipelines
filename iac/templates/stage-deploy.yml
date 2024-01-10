@@ -16,7 +16,6 @@ parameters:
     values:
       - bicep
       - azcli
-      - azpowershell
       - arm
   
 jobs:
@@ -81,26 +80,28 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   az network vnet subnet create --vnet-name 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}' --address-prefixes 10.0.0.0/24
-  
-  - deployment: deploy_iac_job_azpowershell
-    displayName: Deploying the infrastructure via Azure Powershell
+  - deployment: deploy_iac_job_arm
+    displayName: Deploying the infrastructure via ARM templates
     environment: 'iac-${{ parameters.environment }}'
-    condition: eq('${{parameters.deployType}}', 'azpowershell')
+    condition: eq('${{parameters.deployType}}', 'arm')
+    variables:
+      armTemplateFile: '$(Build.SourcesDirectory)/iac/templates/arm/main.json'
+      armParamFileJson: '$(Build.SourcesDirectory)/iac/templates/arm/${{ parameters.environment }}-param.json'
     strategy:
       runOnce:
         deploy:
           steps:
-            - task: PowerShell@2
-              displayName: Install module Az
+            - checkout: self
+            - task: CmdLine@2
+            - task: AzureResourceManagerTemplateDeployment@3
               inputs:
-                pwsh: true
-                targetType: inline
-                script: |
-                  Install-Module Az
-            - task: PowerShell@2
-              displayName: Create VNET
-              inputs:
-                pwsh: true
-                targetType: inline
-                script: |
-                  New-AzVirtualNetwork -Name 'devops-examples-vn-${{ parameters.environment }}' -ResourceGroupName '${{ parameters.resourceGroupName }}' -Subnet 'devops-examples-sbn-${{ parameters.environment }}'
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: '${{ parameters.azureServiceConnection }}'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: '${{ parameters.resourceGroupName }}'
+                location: '${{ parameters.location }}'
+                templateLocation: 'Linked artifact'
+                csmFile: '${{ variables.armTemplateFile }}'
+                csmParametersFile: '${{ variables.armParamFileJson }}'
+                deploymentMode: 'Incremental'
+                deploymentName: 'DeployPipelineTemplate'
