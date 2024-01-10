@@ -182,3 +182,4 @@ An example of this flow can be found in the [deploy-iac-env.yml](/iac/deploy-iac
 Notes on the above:
 * dependsOn: dev means that it relies on the dev stage
 * condition: succeeded() means that the previous stage needs to be a successful status
+![Stage flow](/docs/img/pipeline-03.png)
