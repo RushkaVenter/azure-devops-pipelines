@@ -1,0 +1,59 @@
+# This sample illustrates a flow where a deploy to a previous environment has to be successful in order to proceed to the next
+
+trigger: none
+
+parameters:
+  - name: deployType
+    displayName: Deploy Type
+    type: string
+    default: bicep
+    values:
+      - bicep
+      - azcli
+      - arm
+
+stages:
+  - stage: dev
+    displayName: "IaC Deploy Dev"
+    variables:
+      - group: iac-dev
+    jobs:
+      - template: /iac/templates/stage-deploy.yml
+        parameters:
+          environment: 'dev'
+          project: 'devops-examples'
+          azureServiceConnection: 'devops-examples-azure-service-connection-dev'
+          resourceGroupName: 'devops-examples-rg-dev'
+          location: 'southafricanorth'
+          deployType: '${{parameters.deployType}}'
+  - stage: qa
+    displayName: "IaC Deploy QA"
+    dependsOn: dev
+    condition: succeeded()
+    variables:
+      - group: iac-qa
+    jobs:
+      - template: /iac/templates/stage-deploy.yml
+        parameters:
+          environment: 'qa'
+          project: 'devops-examples'
+          azureServiceConnection: 'devops-examples-azure-service-connection-qa'
+          resourceGroupName: 'devops-examples-rg-qa'
+          location: 'southafricanorth'
+          deployType: '${{parameters.deployType}}'
+  - stage: prod
+    displayName: "IaC Deploy Prod"
+    dependsOn: qa
+    condition: succeeded()
+    variables:
+      - group: iac-prod
+    jobs:
+      - template: /iac/templates/stage-deploy.yml
+        parameters:
+          environment: 'prod'
+          project: 'devops-examples'
+          azureServiceConnection: 'devops-examples-azure-service-connection-prod'
+          resourceGroupName: 'devops-examples-rg-prod'
+          location: 'southafricanorth'
+          deployType: '${{parameters.deployType}}'
+  

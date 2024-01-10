@@ -21,9 +21,8 @@ parameters:
     default: bicep
     values:
       - bicep
-      - arm
       - azcli
-      - azpowershell
+      - arm
 
 stages:
   - stage: dev
