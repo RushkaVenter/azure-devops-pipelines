@@ -64,11 +64,11 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   az network vnet create -n 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}'
-
   - deployment: deploy_iac_job_azcli_subnet
     displayName: Deploying subnet via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'azcli')
+    dependsOn: deploy_iac_job_azcli_vnet
     strategy:
       runOnce:
         deploy:
@@ -81,7 +81,7 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   az network vnet subnet create --vnet-name 'devops-examples-subn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}'
-
+  
   - deployment: deploy_iac_job_azpowershell
     displayName: Deploying the infrastructure via Azure Powershell
     environment: 'iac-${{ parameters.environment }}'
