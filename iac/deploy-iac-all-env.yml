@@ -14,7 +14,7 @@ parameters:
 
 stages:
   - stage: dev
-    displayName: "IaC Deploy"
+    displayName: "IaC Deploy Dev"
     variables:
       - group: iac-dev
     jobs:
@@ -27,7 +27,7 @@ stages:
           location: 'southafricanorth'
           deployType: '${{parameters.deployType}}'
   - stage: qa
-    displayName: "IaC Deploy"
+    displayName: "IaC Deploy QA"
     dependsOn: dev
     condition: succeeded()
     variables:
@@ -42,7 +42,7 @@ stages:
           location: 'southafricanorth'
           deployType: '${{parameters.deployType}}'
   - stage: prod
-    displayName: "IaC Deploy"
+    displayName: "IaC Deploy Prod"
     dependsOn: qa
     condition: succeeded()
     variables:
