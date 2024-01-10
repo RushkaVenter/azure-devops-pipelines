@@ -48,8 +48,8 @@ jobs:
                 csmParametersFile: '${{ variables.bicepParamFileJson }}'
                 deploymentMode: 'Incremental'
                 deploymentName: 'DeployPipelineTemplate'
-  - deployment: deploy_iac_job_azcli
-    displayName: Deploying the infrastructure via Azure CLI
+  - deployment: deploy_iac_job_azcli_vnet
+    displayName: Deploying vnet via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
     condition: eq('${{parameters.deployType}}', 'azcli')
     strategy:
@@ -63,7 +63,25 @@ jobs:
                 scriptType: pscore
                 scriptLocation: inlineScript
                 inlineScript: |
-                  az network vnet create -n 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --subnet-name 'devops-examples-sbn-${{ parameters.environment }}'
+                  az network vnet create -n 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}'
+
+  - deployment: deploy_iac_job_azcli_subnet
+    displayName: Deploying subnet via Azure CLI
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azcli')
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create VNET
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  az network vnet subnet create --vnet-name 'devops-examples-subn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}'
+
   - deployment: deploy_iac_job_azpowershell
     displayName: Deploying the infrastructure via Azure Powershell
     environment: 'iac-${{ parameters.environment }}'
