@@ -80,7 +80,7 @@ jobs:
                 scriptType: pscore
                 scriptLocation: inlineScript
                 inlineScript: |
-                  az network vnet subnet create --vnet-name 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}'
+                  az network vnet subnet create --vnet-name 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}' --address-prefixes 10.0.0.0/24
   
   - deployment: deploy_iac_job_azpowershell
     displayName: Deploying the infrastructure via Azure Powershell
