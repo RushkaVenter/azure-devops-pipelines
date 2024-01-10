@@ -91,6 +91,13 @@ jobs:
         deploy:
           steps:
             - task: PowerShell@2
+              displayName: Install module Az
+              inputs:
+                pwsh: true
+                targetType: inline
+                script: |
+                  Install-Module Az
+            - task: PowerShell@2
               displayName: Create VNET
               inputs:
                 pwsh: true
