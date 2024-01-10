@@ -158,3 +158,27 @@ In the [stage-deploy](/iac/templates/stage-deploy.yml) template is the detailed 
                 deploymentName: 'DeployPipelineTemplate'
 ```
 The above is deployed in a similar fashion to the Bicep template.
+
+### Env Stage Flow
+An alternative flow might be to require a deploy to a previous environment to be successful before deploying to the next.
+An example of this flow can be found in the [deploy-iac-env.yml](/iac/deploy-iac-all-env.yml) file.
+```
+- stage: qa
+    displayName: "IaC Deploy QA"
+    dependsOn: dev
+    condition: succeeded()
+    variables:
+      - group: iac-qa
+    jobs:
+      - template: /iac/templates/stage-deploy.yml
+        parameters:
+          environment: 'qa'
+          project: 'devops-examples'
+          azureServiceConnection: 'devops-examples-azure-service-connection-qa'
+          resourceGroupName: 'devops-examples-rg-qa'
+          location: 'southafricanorth'
+          deployType: '${{parameters.deployType}}'
+```
+Notes on the above:
+* dependsOn: dev means that it relies on the dev stage
+* condition: succeeded() means that the previous stage needs to be a successful status
