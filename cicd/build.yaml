@@ -6,7 +6,7 @@ parameters:
   - name: Web App
     path: "apps/Playground/Playground.sln"
     output: "webapp"
-    outputDirectory: 'webapp'
+    outputDirectory: '$(System.DefaultWorkingDirectory)/webapp'
 
 jobs:
   - job: BuildAndPublishEachProject
