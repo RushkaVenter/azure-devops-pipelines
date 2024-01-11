@@ -36,6 +36,7 @@ stages:
       Environment: 'dev' # The environment
       ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
       ResourceGroupName: 'devops-examples-rg-dev'
-      condition: and(succeeded(), eq(variables.releaseType, 'develop'))
+      # condition: and(succeeded(), eq(variables.releaseType, 'develop'))
+      condition: succeeded()
       dependsOn: 'build'
       releaseType: develop
