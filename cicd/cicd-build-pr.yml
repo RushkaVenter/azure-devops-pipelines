@@ -1,0 +1,11 @@
+#Template for a pull request pipeline
+
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+
+stages:
+  - stage: build_web
+    displayName: "PR Build and Run Tests"
+    jobs:
+    - template: /cicd/build.yml

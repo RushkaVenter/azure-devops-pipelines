@@ -1,0 +1,57 @@
+parameters:
+- name: projects
+  displayName: Projects to publish
+  type: object
+  default:
+  - name: Web App
+    path: "apps/Playground/Playground.sln"
+    output: "webapp"
+    outputDirectory: 'webapp'
+
+jobs:
+  - job: BuildAndPublishEachProject
+    timeoutInMinutes: 20
+    displayName: Build and Publish Each Project
+    variables:
+      solution: "Playground.sln"
+      buildPlatform: "Any CPU"
+      buildConfiguration: "Release"
+    steps:
+      - task: NuGetAuthenticate@0
+        displayName: "NuGet Authenticate"
+
+      - task: DotNetCoreCLI@2
+        displayName: "Build solution"
+        inputs:
+          command: 'build'
+          projects: "$(solution)"
+          arguments: '--configuration $(buildConfiguration)'
+
+      - task: DotNetCoreCLI@2
+        displayName: run unit tests
+        inputs:
+          workingDir: apps/Test
+          command: "test"
+          projects: "**/Test.csproj"
+          arguments: /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./Coverage/
+          publishTestResults: true
+    
+      - task: PublishCodeCoverageResults@1
+        displayName: "Publish code coverage"
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: "**/*coverage.cobertura.xml"
+          
+      - ${{ each proj in parameters.projects }}:
+        - task: DotNetCoreCLI@2
+          displayName: "Create artifact ${{ proj.name }} - $(buildConfiguration)"
+          inputs:
+            command: "publish"
+            projects: "${{ proj.path }}"
+            publishWebProjects: false
+            arguments: "--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/${{ proj.output }}"
+
+      - ${{ each proj in parameters.projects }}:
+        - publish: $(Build.ArtifactStagingDirectory)/${{ proj.output }}
+          displayName: "Publish ${{ proj.name }} - $(buildConfiguration) in pipeline"
+          artifact: "${{ proj.outputDirectory }}"
