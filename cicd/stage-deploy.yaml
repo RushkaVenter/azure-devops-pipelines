@@ -53,12 +53,12 @@ stages:
                     buildType: "current"
                     downloadType: "single"
                     artifactName: "webapp"
-                    downloadPath: "$(System.DefaultWorkingDirectory)"
+                    downloadPath: "$(Agent.WorkFolder)/1"
 
                 - task: FileTransform@1
                   displayName: "Transform appsettings"
                   inputs:
-                    folderPath: "$(System.DefaultWorkingDirectory)/webapp/Playground.zip"
+                    folderPath: "$(Agent.WorkFolder)/1/webapp/Playground.zip"
                     fileType: "json"
                     targetFiles: "appsettings.json"
                 
@@ -70,6 +70,6 @@ stages:
                     WebAppName: "devops-examples-webapp-${{ parameters.Environment }}"
                     azureSubscription: ${{parameters.ServiceConnectionName}}
                     resourceGroupName: ${{parameters.ResourceGroupName}}
-                    package: "$(System.DefaultWorkingDirectory)/webapp/Playground.zip"
+                    package: "$(Agent.WorkFolder)/1/webapp/Playground.zip"
                     JSONFiles: |
                       **/appsettings.json
