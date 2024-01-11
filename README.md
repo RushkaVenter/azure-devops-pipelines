@@ -183,3 +183,9 @@ Notes on the above:
 * dependsOn: dev means that it relies on the dev stage
 * condition: succeeded() means that the previous stage needs to be a successful status
 ![Stage flow](/docs/img/pipeline-03.png)
+
+## Continuous Integration and Continuous Deployment
+Automation is a core goal for most project and an important part to achieve that is continuous integration and continuous deployment pipelines.
+We will be covering a few common components for DevOps projects to achieve that goal.
+
+### Pull Request Pipelines
