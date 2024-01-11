@@ -196,6 +196,12 @@ These policies can include:
 * If a reviewer is allowed to approve their own PR or not
 * Check if the PR has linked work items
 * Require all comments on a PR be resolved
-* Build Validation
+* Build Validation (this requires a PR build pipeline)
 * You can also automatically include reviewers, either individually or as a team
 ![Build Validation](/docs/img/pr-pipeline-build-02.png)
+
+We have created a sample PR build pipeline that can be used.
+[Sample PR build pipeline](/cicd/cicd-build-pr.yml)
+[Sample PR build](/cicd/build.yml)
+The build section builds the sample web project located under the apps folder. This build also runs the test project in the solution and publishes a code coverage report.
+![Build Validation](/docs/img/pr-pipeline-build-03.png)
