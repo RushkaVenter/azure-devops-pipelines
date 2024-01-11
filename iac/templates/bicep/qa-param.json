@@ -7,6 +7,12 @@
       },
       "subnetName": {
         "value": "devops-examples-sbn-qa"
+      },
+      "planName": {
+        "value": "devops-examples-plan-qa"
+      },
+      "webAppName": {
+        "value": "devops-examples-webapp-qa"
       }
     }
   }

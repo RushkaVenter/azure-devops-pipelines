@@ -183,3 +183,88 @@ Notes on the above:
 * dependsOn: dev means that it relies on the dev stage
 * condition: succeeded() means that the previous stage needs to be a successful status
 ![Stage flow](/docs/img/pipeline-03.png)
+
+## Continuous Integration and Continuous Deployment
+Automation is a core goal for most project and an important part to achieve that is continuous integration and continuous deployment pipelines.
+We will be covering a few common components for DevOps projects to achieve that goal.
+
+### Pull Request Pipelines
+We can ensure that pull requests (PR) for DevOps repositories meet certain requirements before completing a pull request.
+![Branch Policies](/docs/img/pr-pipeline-build-01.png)
+These policies can include:
+* Minimum required reviewers
+* If a reviewer is allowed to approve their own PR or not
+* Check if the PR has linked work items
+* Require all comments on a PR be resolved
+* Build Validation (this requires a PR build pipeline)
+* You can also automatically include reviewers, either individually or as a team
+![Build Validation](/docs/img/pr-pipeline-build-02.png)
+
+We have created a sample PR build pipeline that can be used.
+[Sample PR build pipeline](/cicd/cicd-build-pr.yml)
+[Sample PR build](/cicd/build.yml)
+The build section builds the sample web project located under the apps folder. This build also runs the test project in the solution and publishes a code coverage report.
+![Build Validation](/docs/img/pr-pipeline-build-03.png)
+
+## Release Pipeline
+In order to release your code to an environment, we have provided a sample [release pipeline](/cicd//release.yaml).
+```
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  branches:
+    include:
+      - develop
+      - release/*
+
+variables:
+  ${{ if not(or(eq(variables['Build.SourceBranch'], 'refs/heads/develop'), or(contains(variables['Build.SourceBranch'], 'refs/heads/release/'), contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))) }}:
+    releaseType: none
+
+  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/develop') }}:
+    releaseType: develop
+
+  ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
+    releaseType: release
+
+stages:
+  #######################BUILD AND PREFLIGHT############################
+  - stage: build
+    displayName: "Build and Publish"
+    dependsOn: #Empty to force it to run in parallel, otherwise it won't
+    jobs:
+      - template: /cicd/build.yaml
+  # Include any other preflight steps that you might need, like a SonarQube scan if required
+  #################################DEV#################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'dev' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
+      condition: and(succeeded(), eq(variables.releaseType, 'develop'))
+      dependsOn: 'build'
+      releaseType: develop
+  ################################QA#####################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'qa' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-qa'
+      ResourceGroupName: 'devops-examples-rg-qa'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'build'
+      releaseType: release
+  ###############################PROD###################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'prod' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'Deploy_web_app_qa_release'
+      releaseType: release
+```
+In the above, a simplified GitFlow is followed.
+develop is the branch to which features are merged with a PR and then automatically deployed to the dev environment with this pipeline.
+After that, a release branch is created and used to deploy the latest release to qa and prod.
+This is of course on a sample flow and you can adjust to suit your project's individual needs.
+![Release flow](/docs/img/cicd-pipeline-01.png)

@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "value": "devops-examples-vn-qa"
+      },
+      "subnetName": {
+        "value": "devops-examples-sbn-qa"
+      },
+      "planName": {
+        "value": "devops-examples-plan-qa"
+      },
+      "webAppName": {
+        "value": "devops-examples-webapp-qa"
+      }
+    }
+  }

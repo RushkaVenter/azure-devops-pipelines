@@ -7,6 +7,24 @@
             "metadata": {
                 "description": "Virtual Network Name"
             }
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Subnet Name"
+            }
+        },
+        "planName": {
+            "type": "string",
+            "metadata": {
+                "description": "Application Service Plan Name"
+            }
+        },
+        "webAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "Web Application Name"
+            }
         }
     },
     "functions": [],
@@ -18,7 +36,7 @@
             "apiVersion": "2023-04-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "virtualNetwork1"
+                "displayName": "[parameters('vnetName')]"
             },
             "properties": {
                 "addressSpace": {
@@ -28,18 +46,45 @@
                 },
                 "subnets": [
                     {
-                        "name": "Subnet-1",
+                        "name": "[parameters('subnetName')]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24"
                         }
-                    },
-                    {
-                        "name": "Subnet-2",
-                        "properties": {
-                            "addressPrefix": "10.0.1.0/24"
-                        }
                     }
                 ]
+            }
+        },
+        {
+            "name": "[parameters('planName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-09-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "capacity": 1
+            },
+            "tags": {
+                "displayName": "[parameters('planName')]"
+            },
+            "properties": {
+                "name": "[parameters('planName')]"
+            }
+        },
+        {
+            "name": "[parameters('webAppName')]",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-09-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('planName'))]": "Resource",
+                "displayName": "[parameters('webAppName')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('planName'))]"
+            ],
+            "properties": {
+                "name": "[parameters('webAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('planName'))]"
             }
         }
     ],

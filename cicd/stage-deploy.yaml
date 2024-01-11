@@ -1,0 +1,57 @@
+parameters:
+  - name: ServiceConnectionName
+    type: string
+  - name: Environment
+    type: string
+  - name: ResourceGroupName
+    type: string
+  - name: condition
+    type: string
+    default: 'succeeded()'
+  - name: dependsOn
+    type: string
+  - name: releaseType
+    type: string
+
+stages:
+  - stage: Deploy_web_app_${{ parameters.Environment }}_${{parameters.releaseType}}
+    displayName: "Deploy web app ${{ parameters.Environment }} ${{parameters.releaseType}}"
+    dependsOn: ${{ split(parameters.dependsOn, ',') }} # the stages can then depend on multiple other stages
+    condition: ${{ parameters.condition }}
+    jobs:
+      - deployment: DeployWebApp
+        displayName: "Deploy Web App"
+        environment: 'iac-${{parameters.Environment}}'
+        dependsOn:
+        condition: succeeded()
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download the web app build artifacts"
+                  inputs:
+                    buildType: "current"
+                    downloadType: "single"
+                    artifactName: "webapp"
+                    downloadPath: "$(Agent.WorkFolder)/1"
+
+                - task: FileTransform@1
+                  displayName: "Transform appsettings"
+                  inputs:
+                    folderPath: "$(Agent.WorkFolder)/1/webapp/Playground.zip"
+                    fileType: "json"
+                    targetFiles: "appsettings.json"
+                
+                - task: AzureRmWebAppDeployment@4
+                  displayName: "Deploy Web Application"
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    appType: "webApp"
+                    WebAppName: "devops-examples-webapp-${{ parameters.Environment }}"
+                    azureSubscription: ${{parameters.ServiceConnectionName}}
+                    resourceGroupName: ${{parameters.ResourceGroupName}}
+                    package: "$(Agent.WorkFolder)/1/webapp/Playground.zip"
+                    JSONFiles: |
+                      **/appsettings.json
