@@ -21,7 +21,7 @@ stages:
     jobs:
       - deployment: DeployWebApp
         displayName: "Deploy Web App"
-        environment: ${{parameters.Environment}}
+        environment: 'iac-${{parameters.Environment}}'
         dependsOn:
         condition: succeeded()
         strategy:
