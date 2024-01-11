@@ -29,6 +29,21 @@ stages:
             deploy:
               steps:
 
+                - task: CmdLine@2
+                  inputs:
+                    script: |
+                      echo "Structure of work folder of this pipeline:"
+                      tree $(Agent.WorkFolder)/1
+
+                      echo "Build.ArtifactStagingDirectory:" 
+                      echo "$(Build.ArtifactStagingDirectory)"
+
+                      echo "Build.BinariesDirectory:" 
+                      echo "$(Build.BinariesDirectory)"
+
+                      echo "Build.SourcesDirectory:"
+                      echo "$(Build.SourcesDirectory)"
+
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download the web app build artifacts"
                   inputs:
