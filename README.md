@@ -189,3 +189,13 @@ Automation is a core goal for most project and an important part to achieve that
 We will be covering a few common components for DevOps projects to achieve that goal.
 
 ### Pull Request Pipelines
+We can ensure that pull requests (PR) for DevOps repositories meet certain requirements before completing a pull request.
+![Branch Policies](/docs/img/pr-pipeline-build-01.png)
+These policies can include:
+* Minimum required reviewers
+* If a reviewer is allowed to approve their own PR or not
+* Check if the PR has linked work items
+* Require all comments on a PR be resolved
+* Build Validation
+* You can also automatically include reviewers, either individually or as a team
+![Build Validation](/docs/img/pr-pipeline-build-02.png)

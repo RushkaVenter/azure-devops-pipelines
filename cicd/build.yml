@@ -13,7 +13,7 @@ jobs:
     timeoutInMinutes: 20
     displayName: Build and Publish Each Project
     variables:
-      solution: "apps/Playground.sln"
+      solution: "apps/Playground/Playground.sln"
       buildPlatform: "Any CPU"
       buildConfiguration: "Release"
     steps:
