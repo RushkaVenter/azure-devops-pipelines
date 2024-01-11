@@ -24,10 +24,6 @@ variables:
 
 stages:
   ################################################################BUILD AND PREFLIGHT######################################################
-  - stage: security_scan
-    displayName: "Security Scan"
-    jobs:
-      - template: /cicd/security-scan.yaml
   - stage: build
     displayName: "Build and Publish"
     dependsOn: #Empty to force it to run in parallel, otherwise it won't
@@ -41,5 +37,5 @@ stages:
       ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
       ResourceGroupName: 'devops-examples-rg-dev'
       condition: and(succeeded(), eq(variables.releaseType, 'develop'))
-      dependsOn: 'build,security_scan'
+      dependsOn: 'build'
       releaseType: develop
