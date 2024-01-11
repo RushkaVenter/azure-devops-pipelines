@@ -228,14 +228,14 @@ variables:
     releaseType: release
 
 stages:
-  ################################################################BUILD AND PREFLIGHT######################################################
+  #######################BUILD AND PREFLIGHT############################
   - stage: build
     displayName: "Build and Publish"
     dependsOn: #Empty to force it to run in parallel, otherwise it won't
     jobs:
       - template: /cicd/build.yaml
   # Include any other preflight steps that you might need, like a SonarQube scan if required
-  ################################################################DEV######################################################
+  #################################DEV#################################
   - template: /cicd/stage-deploy.yaml
     parameters:
       Environment: 'dev' # The environment
@@ -244,7 +244,7 @@ stages:
       condition: and(succeeded(), eq(variables.releaseType, 'develop'))
       dependsOn: 'build'
       releaseType: develop
-  ################################################################QA######################################################
+  ################################QA#####################################
   - template: /cicd/stage-deploy.yaml
     parameters:
       Environment: 'qa' # The environment
@@ -253,7 +253,7 @@ stages:
       condition: and(succeeded(), eq(variables.releaseType, 'release'))
       dependsOn: 'build'
       releaseType: release
-  ################################################################PROD######################################################
+  ###############################PROD###################################
   - template: /cicd/stage-deploy.yaml
     parameters:
       Environment: 'prod' # The environment
@@ -267,3 +267,4 @@ In the above, a simplified GitFlow is followed.
 develop is the branch to which features are merged with a PR and then automatically deployed to the dev environment with this pipeline.
 After that, a release branch is created and used to deploy the latest release to qa and prod.
 This is of course on a sample flow and you can adjust to suit your project's individual needs.
+![Release flow](/docs/img/cicd-pipeline-01.png)
