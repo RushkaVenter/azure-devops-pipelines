@@ -4,6 +4,15 @@
     "parameters": {
       "vnetName": {
         "value": "devops-examples-vn-dev"
+      },
+      "subnetName": {
+        "value": "devops-examples-sbn-dev"
+      },
+      "planName": {
+        "value": "devops-examples-plan-dev"
+      },
+      "webAppName": {
+        "value": "devops-examples-webapp-dev"
       }
     }
   }

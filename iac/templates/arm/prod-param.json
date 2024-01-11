@@ -2,17 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "virtualNetworkName": {
-        "value": "devops-examples-vn-qa"
+      "vnetName": {
+        "value": "devops-examples-vn-prod"
       },
       "subnetName": {
-        "value": "devops-examples-sbn-qa"
+        "value": "devops-examples-sbn-prod"
       },
       "planName": {
-        "value": "devops-examples-plan-qa"
+        "value": "devops-examples-plan-prod"
       },
       "webAppName": {
-        "value": "devops-examples-webapp-qa"
+        "value": "devops-examples-webapp-prod"
       }
     }
   }

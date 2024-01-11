@@ -19,6 +19,7 @@ parameters:
       - arm
   
 jobs:
+################ BICEP ###################
   - deployment: deploy_iac_job_bicep
     displayName: Deploying the infrastructure via Bicep
     # Setting up an Environment on DevOps - https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops
@@ -47,6 +48,7 @@ jobs:
                 csmParametersFile: '${{ variables.bicepParamFileJson }}'
                 deploymentMode: 'Incremental'
                 deploymentName: 'DeployPipelineTemplate'
+################ AZURE CLI ###################
   - deployment: deploy_iac_job_azcli_vnet
     displayName: Deploying vnet via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
@@ -80,6 +82,41 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   az network vnet subnet create --vnet-name 'devops-examples-vn-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --name 'devops-examples-sbn-${{ parameters.environment }}' --address-prefixes 10.0.0.0/24
+  - deployment: deploy_iac_job_azcli_app_service_plan
+    displayName: Deploying application service plan via Azure CLI
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azcli')
+    dependsOn: 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create App Service Plan
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  az appservice plan create -n 'devops-examples-plan-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --sku FREE
+  - deployment: deploy_iac_job_azcli_web_app
+    displayName: Deploying web application via Azure CLI
+    environment: 'iac-${{ parameters.environment }}'
+    condition: eq('${{parameters.deployType}}', 'azcli')
+    dependsOn: deploy_iac_job_azcli_app_service_plan
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create Web application
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: pscore
+                scriptLocation: inlineScript
+                inlineScript: |
+                  az webapp create -n 'devops-examples-webapp-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --plan 'devops-examples-plan-${{ parameters.environment }}'
+################ ARM ###################
   - deployment: deploy_iac_job_arm
     displayName: Deploying the infrastructure via ARM templates
     environment: 'iac-${{ parameters.environment }}'
