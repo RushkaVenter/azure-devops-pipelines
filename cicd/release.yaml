@@ -5,9 +5,6 @@ trigger:
     include:
       - develop
       - release/*
-      - hotfix/*
-    exclude:
-      - devops/*
 
 variables:
   ${{ if not(or(eq(variables['Build.SourceBranch'], 'refs/heads/develop'), or(contains(variables['Build.SourceBranch'], 'refs/heads/release/'), contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))) }}:
@@ -18,9 +15,6 @@ variables:
 
   ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
     releaseType: release
-
-  ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/') }}:
-    releaseType: hotfix
 
 stages:
   ################################################################BUILD AND PREFLIGHT######################################################
@@ -36,7 +30,24 @@ stages:
       Environment: 'dev' # The environment
       ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
       ResourceGroupName: 'devops-examples-rg-dev'
-      # condition: and(succeeded(), eq(variables.releaseType, 'develop'))
-      condition: succeeded()
+      condition: and(succeeded(), eq(variables.releaseType, 'develop'))
       dependsOn: 'build'
       releaseType: develop
+  ################################################################QA######################################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'qa' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-qa'
+      ResourceGroupName: 'devops-examples-rg-qa'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'build'
+      releaseType: release
+  ################################################################PROD######################################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'prod' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'Deploy_web_app_qa_release'
+      releaseType: release

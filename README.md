@@ -205,3 +205,65 @@ We have created a sample PR build pipeline that can be used.
 [Sample PR build](/cicd/build.yml)
 The build section builds the sample web project located under the apps folder. This build also runs the test project in the solution and publishes a code coverage report.
 ![Build Validation](/docs/img/pr-pipeline-build-03.png)
+
+## Release Pipeline
+In order to release your code to an environment, we have provided a sample [release pipeline](/cicd//release.yaml).
+```
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  branches:
+    include:
+      - develop
+      - release/*
+
+variables:
+  ${{ if not(or(eq(variables['Build.SourceBranch'], 'refs/heads/develop'), or(contains(variables['Build.SourceBranch'], 'refs/heads/release/'), contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))) }}:
+    releaseType: none
+
+  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/develop') }}:
+    releaseType: develop
+
+  ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
+    releaseType: release
+
+stages:
+  ################################################################BUILD AND PREFLIGHT######################################################
+  - stage: build
+    displayName: "Build and Publish"
+    dependsOn: #Empty to force it to run in parallel, otherwise it won't
+    jobs:
+      - template: /cicd/build.yaml
+  # Include any other preflight steps that you might need, like a SonarQube scan if required
+  ################################################################DEV######################################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'dev' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
+      condition: and(succeeded(), eq(variables.releaseType, 'develop'))
+      dependsOn: 'build'
+      releaseType: develop
+  ################################################################QA######################################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'qa' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-qa'
+      ResourceGroupName: 'devops-examples-rg-qa'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'build'
+      releaseType: release
+  ################################################################PROD######################################################
+  - template: /cicd/stage-deploy.yaml
+    parameters:
+      Environment: 'prod' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
+      condition: and(succeeded(), eq(variables.releaseType, 'release'))
+      dependsOn: 'Deploy_web_app_qa_release'
+      releaseType: release
+```
+In the above, a simplified GitFlow is followed.
+develop is the branch to which features are merged with a PR and then automatically deployed to the dev environment with this pipeline.
+After that, a release branch is created and used to deploy the latest release to qa and prod.
+This is of course on a sample flow and you can adjust to suit your project's individual needs.
