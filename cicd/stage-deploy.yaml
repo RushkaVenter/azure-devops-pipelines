@@ -44,6 +44,9 @@ stages:
                       echo "Build.SourcesDirectory:"
                       echo "$(Build.SourcesDirectory)"
 
+                      echo "System.DefaultWorkingDirectory:"
+                      echo "$(System.DefaultWorkingDirectory)"
+
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download the web app build artifacts"
                   inputs:
