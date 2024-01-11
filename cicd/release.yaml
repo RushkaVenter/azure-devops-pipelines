@@ -1,0 +1,45 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  branches:
+    include:
+      - develop
+      - release/*
+      - hotfix/*
+    exclude:
+      - devops/*
+
+variables:
+  ${{ if not(or(eq(variables['Build.SourceBranch'], 'refs/heads/develop'), or(contains(variables['Build.SourceBranch'], 'refs/heads/release/'), contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))) }}:
+    releaseType: none
+
+  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/develop') }}:
+    releaseType: develop
+
+  ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
+    releaseType: release
+
+  ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/hotfix/') }}:
+    releaseType: hotfix
+
+stages:
+  ################################################################BUILD AND PREFLIGHT######################################################
+  - stage: security_scan
+    displayName: "Security Scan"
+    jobs:
+      - template: /cicd/security-scan.yml
+  - stage: build
+    displayName: "Build and Publish"
+    dependsOn: #Empty to force it to run in parallel, otherwise it won't
+    jobs:
+      - template: /cicd/build.yaml
+  # Include any other preflight steps that you might need, like a SonarQube scan if required
+  ################################################################DEV######################################################
+  - template: /cicd/stage-deploy.yml
+    parameters:
+      Environment: 'dev' # The environment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-${{parameters.env}}'
+      ResourceGroupName: '${{ parameters.site }}-rg-dev-${{ parameters.projectName }}-001' # The Resource group for deployment
+      condition: and(succeeded(), eq(variables.releaseType, 'develop'))
+      dependsOn: 'build,security_scan'
+      releaseType: develop
