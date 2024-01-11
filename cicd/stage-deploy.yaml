@@ -3,6 +3,8 @@ parameters:
     type: string
   - name: Environment
     type: string
+  - name: ResourceGroupName
+    type: string
   - name: condition
     type: string
     default: 'succeeded()'
