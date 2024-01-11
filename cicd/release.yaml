@@ -38,8 +38,8 @@ stages:
   - template: /cicd/stage-deploy.yaml
     parameters:
       Environment: 'dev' # The environment
-      ServiceConnectionName: 'devops-examples-azure-service-connection-${{parameters.env}}'
-      ResourceGroupName: '${{ parameters.site }}-rg-dev-${{ parameters.projectName }}-001' # The Resource group for deployment
+      ServiceConnectionName: 'devops-examples-azure-service-connection-dev'
+      ResourceGroupName: 'devops-examples-rg-dev'
       condition: and(succeeded(), eq(variables.releaseType, 'develop'))
       dependsOn: 'build,security_scan'
       releaseType: develop
