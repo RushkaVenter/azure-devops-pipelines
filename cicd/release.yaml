@@ -27,7 +27,7 @@ stages:
   - stage: security_scan
     displayName: "Security Scan"
     jobs:
-      - template: /cicd/security-scan.yml
+      - template: /cicd/security-scan.yaml
   - stage: build
     displayName: "Build and Publish"
     dependsOn: #Empty to force it to run in parallel, otherwise it won't
@@ -35,7 +35,7 @@ stages:
       - template: /cicd/build.yaml
   # Include any other preflight steps that you might need, like a SonarQube scan if required
   ################################################################DEV######################################################
-  - template: /cicd/stage-deploy.yml
+  - template: /cicd/stage-deploy.yaml
     parameters:
       Environment: 'dev' # The environment
       ServiceConnectionName: 'devops-examples-azure-service-connection-${{parameters.env}}'
