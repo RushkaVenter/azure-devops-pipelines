@@ -60,7 +60,7 @@
             "apiVersion": "2022-09-01",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "FREE",
+                "name": "F1",
                 "capacity": 1
             },
             "tags": {

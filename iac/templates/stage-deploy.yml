@@ -98,7 +98,7 @@ jobs:
                 scriptType: pscore
                 scriptLocation: inlineScript
                 inlineScript: |
-                  az appservice plan create -n 'devops-examples-plan-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --sku FREE
+                  az appservice plan create -n 'devops-examples-plan-${{ parameters.environment }}' -g '${{ parameters.resourceGroupName }}' --sku F1
   - deployment: deploy_iac_job_azcli_web_app
     displayName: Deploying web application via Azure CLI
     environment: 'iac-${{ parameters.environment }}'
