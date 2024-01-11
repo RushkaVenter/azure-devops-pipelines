@@ -40,7 +40,7 @@ stages:
                 - task: FileTransform@1
                   displayName: "Transform appsettings"
                   inputs:
-                    folderPath: "$(System.DefaultWorkingDirectory)/webapp/webapp.zip"
+                    folderPath: "$(System.DefaultWorkingDirectory)/webapp/Playground.zip"
                     fileType: "json"
                     targetFiles: "appsettings.json"
                 
@@ -52,6 +52,6 @@ stages:
                     WebAppName: "devops-examples-webapp-${{ parameters.Environment }}"
                     azureSubscription: ${{parameters.ServiceConnectionName}}
                     resourceGroupName: ${{parameters.ResourceGroupName}}
-                    package: "$(System.DefaultWorkingDirectory)/webapp/webapp.zip"
+                    package: "$(System.DefaultWorkingDirectory)/webapp/Playground.zip"
                     JSONFiles: |
                       **/appsettings.json
